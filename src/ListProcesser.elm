@@ -10,9 +10,13 @@ main =
     Html.pre [] [
      line "TESTS:"
      , test "input" theInputList
-     , test "state 0 " state0
-     , test "state 1 " state1
+     , test "internalstate 0 " state0
+     , test "internalstate 1 " state1
      , test "output" (run (makeReducer outputValue) theInputList)
+     , test "str input" inputStringList
+     , test "str output" (run (makeReducer stringJoiner) inputStringList)
+     , test "str output2" (run (makeReducer stringJoiner2) inputStringList)
+     , test "str output2b" (run (makeReducer stringJoiner2) inputStringList |> String.join "")
      ]
  
  
@@ -25,6 +29,7 @@ test a b = text (a ++ ": " ++ Debug.toString b ++ "\n\n")
 -- EXAMPLES
 
 theInputList = [0, 1, 2, 3, 4]
+inputStringList = ["He", "said", ",", "Wow", "!"]
 state0 = initialInternalState theInputList
 state1 = nextInternalState state0
   
@@ -34,7 +39,7 @@ state1 = nextInternalState state0
      
 type alias InternalState a = {before: Maybe a, current: Maybe a, after: Maybe a, inputList: List a}
 
-type alias MachineState a b = {state: InternalState a, outputList: List b}
+type alias MachineState a b = {internalstate: InternalState a, outputList: List b}
 
 type alias Reducer a b = a -> MachineState a b -> MachineState a b
 
@@ -59,7 +64,7 @@ run reducer inputList =
     
 initialMachineState : List a -> MachineState a b
 initialMachineState inputList = 
-  {state =  initialInternalState inputList, outputList = []}
+  {internalstate =  initialInternalState inputList, outputList = []}
   
 initialInternalState : List a -> InternalState a
 initialInternalState inputList = 
@@ -70,7 +75,7 @@ initialInternalState inputList =
    }
    
 
--- NEXT STATE FUNCTION
+-- NEXT internalstate FUNCTION
 
 nextInternalState : InternalState a -> InternalState a
 nextInternalState internalState_ = 
@@ -90,16 +95,16 @@ nextInternalState internalState_ =
 makeReducer : (InternalState a -> b) -> Reducer a b
 makeReducer computeOutput input machineState =
   let 
-    nextInputList = List.drop 1 machineState.state.inputList  
-    nextInternalState_ = nextInternalState machineState.state
-    newOutput = computeOutput machineState.state
+    nextInputList = List.drop 1 machineState.internalstate.inputList  
+    nextInternalState_ = nextInternalState machineState.internalstate
+    newOutput = computeOutput machineState.internalstate
     outputList = newOutput::machineState.outputList 
   in
-    {state = nextInternalState_, outputList = outputList}
+    {internalstate = nextInternalState_, outputList = outputList}
 
   
 
--- COMPUTE AN OUTPUT VALUE FROM THE INTERNAL STATE
+-- COMPUTE AN OUTPUT VALUE FROM THE INTERNAL internalstate
 
 outputValue : InternalState Int -> Int 
 outputValue internalState = 
@@ -109,3 +114,36 @@ outputValue internalState =
     c = internalState.after   |> Maybe.withDefault 0 
   in  
     a + b + c
+
+type SpacingSymbol = Space | NoSpace | EndParagraph
+
+stringJoiner : InternalState String -> (String, SpacingSymbol)
+stringJoiner internalState =
+  let 
+    b = internalState.current |> Maybe.withDefault ""
+    c = internalState.after   |> Maybe.withDefault "" 
+    symbol =  if internalState.after == Nothing then 
+                  EndParagraph
+              else if List.member (String.left 1 c) 
+                  [",", ";", ".", ":", "?", "!"] then 
+                  NoSpace 
+              else 
+                  Space
+  in 
+    (b, symbol)
+
+stringJoiner2 : InternalState String -> String
+stringJoiner2 internalState =
+  let 
+    b = internalState.current |> Maybe.withDefault ""
+    c = internalState.after   |> Maybe.withDefault "" 
+    output =  if internalState.after == Nothing then 
+                  b ++ "\n\n"
+              else if List.member (String.left 1 c) 
+                  [",", ";", ".", ":", "?", "!"] then 
+                  b 
+              else 
+                  b ++ " "
+  in 
+    output
+  
