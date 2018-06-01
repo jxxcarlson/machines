@@ -1,3 +1,3 @@
 
-Some experiments with various software machines.
+Some experiments in Elm with abstract machines.
 
