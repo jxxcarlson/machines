@@ -12,7 +12,7 @@ The machine reads the input list element by element,
 adding an element to the output list at each step.
 Call the input element that is being read at the moment
 the "current" element. Then one has the notions of the element
-before the current one and the elemeny after the current one.
+before the current one and the element after the current one.
 We model these as values of type `Maybe a`, since
 `Nothing` can occur, e.g., when the first element
 of the input list is being read.  These notions are
@@ -67,7 +67,7 @@ runMachine outputFunction inputList
 ```
 
 Let's see how this works in the
-example discussed above.  The outputFunction is:
+example discussed above.  The outputFunction is
 
 ```
 sumState : InternalState Int -> Int 
