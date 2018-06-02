@@ -8,18 +8,21 @@ Overview
 
 A `ListMachine` takes as input a `List a` and produces
 as output a `List b`.  Processing occurs as follows.
-The machine reads the input list element by element
+The machine reads the input list element by element,
 adding an element to the output list at each step.
 Call the input element that is being read at the moment
-the "current." Then one has the notions of the element
-before the current one and after the current one.
+the "current" element. Then one has the notions of the element
+before the current one and the elemeny after the current one.
 We model these as values of type `Maybe a`, since
 `Nothing` can occur, e.g., when the first element
-of the input list is being read.  To be more precise,
-the `InternalState` of the machine holds a record
-with fields `before`, `current`, and `after`.  The 
-new output element is a function of these three
-fields.
+of the input list is being read.  These notions are
+implemented in `InternalState` by a record
+with fields `before`, `current`, and `after`.  An output
+element is computed  by a function `outputFunction` 
+of `InternalState`.
+
+See [Making Functional Machines with Elm](https://medium.com/@jxxcarlson/making-functional-machines-with-elm-c07700bba13c)
+
 
 Below is an example of a simple list machine
 in operation. The output function `f` is,
@@ -48,7 +51,7 @@ Defining and running a ListMachine
 
 There is a fair amount of internal plumbing
 in the `ListMachine` module.  However, this
-module exposes only one functions, `runMachine`,
+module exposes only one function, `runMachine`,
 and one type, `InternalState`. To define a `ListMachine`, 
 one needs only define an output function, 
 which has type signature
@@ -63,9 +66,8 @@ To run the corresponding machine, execute
 runMachine outputFunction inputList
 ```
 
-Let's see how this works in a concrete
-example.  The outputFunction for the example
-discussed above is:
+Let's see how this works in the
+example discussed above.  The outputFunction is:
 
 ```
 sumState : InternalState Int -> Int 
@@ -93,9 +95,12 @@ Compilation
 
 Compile with
 
-`$ elm make src/Main.elm`
+```
+$ cd examples
+$ elm make src/Main.elm
+```
 
-Then click on `index.html`
+Then click on the resulting `index.html`
 
 
 
