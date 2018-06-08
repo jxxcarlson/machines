@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Html exposing (Html, pre , text)
-import ListMachine exposing(runMachine, InternalState)
+import ListMachine exposing(InternalState)
 
 -- MAIN
 
@@ -10,11 +10,11 @@ main =
     Html.pre [] [
      line "TESTS:"
      , test "input" theInputList
-     , test "output" (runMachine outputValue theInputList)
+     , test "output" (ListMachine.run outputValue theInputList)
      , test "str input" inputStringList
-     , test "str output" (runMachine stringJoiner inputStringList)
-     , test "str output2" (runMachine stringJoiner2 inputStringList)
-     , test "str output2b" ((runMachine stringJoiner2 inputStringList) |> String.join "")
+     , test "str output" (ListMachine.run stringJoiner inputStringList)
+     , test "str output2" (ListMachine.run stringJoiner2 inputStringList)
+     , test "str output2b" ((ListMachine.run stringJoiner2 inputStringList) |> String.join "")
      ]
  
  
@@ -30,13 +30,13 @@ theInputList = [0, 1, 2, 3, 4]
 inputStringList = ["He", "said", ",", "Wow", "!"]
   
  
--- COMPUTE AN OUTPUT VALUE FROM THE INTERNAL internalstate
+-- COMPUTE AN OUTPUT VALUE FROM THE INTERNAL ListMachine.InternalState
 
 outputValue : InternalState Int -> Int 
 outputValue internalState = 
   let
-    a = internalState.before  |> Maybe.withDefault 0 
-    b = internalState.current |> Maybe.withDefault 0 
+    a =internalState.before  |> Maybe.withDefault 0 
+    b =internalState.current |> Maybe.withDefault 0 
     c = internalState.after   |> Maybe.withDefault 0 
   in  
     a + b + c

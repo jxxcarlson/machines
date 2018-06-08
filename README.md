@@ -53,7 +53,7 @@ There is a fair amount of internal plumbing
 in the `ListMachine` module.  However, this
 module exposes only one function, `runMachine`,
 and one type, `InternalState`. To define a `ListMachine`, 
-one needs only define an output function, 
+one need only define an output function, 
 which has type signature
 
 ```

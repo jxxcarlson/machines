@@ -1,5 +1,5 @@
  
-module ListMachine exposing(runMachine, InternalState)  
+module ListMachine exposing(run, InternalState)  
 
 {-| 
 
@@ -18,7 +18,7 @@ with fields `before`, `current`, and `after`.  The
 new output element is a function of these three
 fields.
 
-`ListMachine` exposes one function, `runMachine`,
+`ListMachine` exposes one function, `run`,
 and one type, `InternalState`.  To define a `ListMachine`,
 it is enough to define an "output function" of type
 `InternalState a -> b`.  In the example, below,
@@ -39,10 +39,10 @@ sumState internalState =
 Given these definitins, one runs the machine like this:
 
 ```
-runMachine sumState [0,1,2,3,4]
+run sumState [0,1,2,3,4]
 ```
 
-@docs runMachine, InternalState
+@docs run, InternalState
 
 See [Making Functional Machines with Elm](https://medium.com/@jxxcarlson/making-functional-machines-with-elm-c07700bba13c)
 
@@ -68,31 +68,31 @@ type alias Reducer a b = a -> MachineState a b -> MachineState a b
 
 -- RUNNERS
 
-run_ : Reducer a b -> MachineState a b -> List a -> MachineState a b
-run_ reducer initialMachineState_ inputList = 
+applyReducerToMachineState : Reducer a b -> MachineState a b -> List a -> MachineState a b
+applyReducerToMachineState reducer initialMachineState_ inputList = 
   List.foldl reducer initialMachineState_ inputList
   
  
-run : Reducer a b -> List a -> List b
-run reducer inputList = 
+applyReducer : Reducer a b -> List a -> List b
+applyReducer reducer inputList = 
   let
     initialMachineState_ = initialMachineState inputList 
-    finalState = run_ reducer initialMachineState_ inputList
+    finalState = applyReducerToMachineState reducer initialMachineState_ inputList
   in
     List.reverse finalState.outputList  
  
 
 {-|
 
-`runMachine` opearates a `ListMachine`. Givcen an
+`run` opearates a `ListMachine`. Givcen an
 output function of type `InternalState a -> b` and
 an input list of type `List a`, it computes a
 `List b`.
 
 -} 
-runMachine : (InternalState a -> b) -> List a -> List b 
-runMachine outputFunction inputList = 
-  run (makeReducer outputFunction) inputList 
+run : (InternalState a -> b) -> List a -> List b 
+run outputFunction inputList = 
+  applyReducer (makeReducer outputFunction) inputList 
 
 
 -- INITIALIZERS
